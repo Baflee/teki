@@ -4,3 +4,5 @@ sqlalchemy
 pydantic
 passlib[bcrypt]
 python-dotenv
+pydantic_settings
+mysqlclient

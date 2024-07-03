@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
-from api.schemas.card import Card, CardCreate
-from api.models.card import Card as CardModel
-from api.db.session import get_db
+from schemas.card import Card, CardCreate
+from models.card import Card as CardModel
+from db.session import get_db
 
 router = APIRouter()
 
