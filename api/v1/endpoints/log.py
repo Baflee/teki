@@ -18,11 +18,11 @@ def create_log(log: LogCreate, db: Session = Depends(get_db)):
     db.add(db_log)
     db.commit()
     db.refresh(db_log)
-    return db_log
+    db_log
 
 @router.put("/{log_id}", response_model=Log)
 def update_log(log_id: int, log: LogCreate, db: Session = Depends(get_db)):
-    db_log = db.query(LogModel).filter(LogModel.id == log_id).first()
+    db_log = db.query(LogModel).filter(LogModel.log_id == log_id).first()
     if db_log is None:
         raise HTTPException(status_code=404, detail="Log not found")
     for key, value in log.dict().items():
@@ -33,7 +33,7 @@ def update_log(log_id: int, log: LogCreate, db: Session = Depends(get_db)):
 
 @router.delete("/{log_id}", response_model=Log)
 def delete_log(log_id: int, db: Session = Depends(get_db)):
-    db_log = db.query(LogModel).filter(LogModel.id == log_id).first()
+    db_log = db.query(LogModel).filter(LogModel.log_id == log_id).first()
     if db_log is None:
         raise HTTPException(status_code=404, detail="Log not found")
     db.delete(db_log)

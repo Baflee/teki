@@ -4,13 +4,14 @@ from datetime import datetime
 class CardBase(BaseModel):
     user_id: int
     expiration_date: datetime
-    jwt: str
+    token: str
 
-class CardCreate(CardBase):
-    pass
+class CardCreate(BaseModel):
+    user_id: int
+    expiration_date: datetime
 
 class Card(CardBase):
-    id: int
+    card_id: int
 
     class Config:
         orm_mode = True

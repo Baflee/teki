@@ -1,1 +1,2 @@
 DATABASE_URL=mysql+pymysql://user:password@localhost/dbname
+SECRET_TOKEN_KEY=
