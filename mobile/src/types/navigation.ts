@@ -1,13 +1,13 @@
 import {NavigationProp} from '@react-navigation/native';
 
 export type RootStackParamList = {
-  Landing: undefined;
+  Scan: undefined;
   Connect: undefined;
 };
 
 export type LandingScreenNavigationProp = NavigationProp<
   RootStackParamList,
-  'Landing'
+  'Scan'
 >;
 export type ConnectScreenNavigationProp = NavigationProp<
   RootStackParamList,
