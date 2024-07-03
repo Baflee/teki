@@ -66,5 +66,8 @@ def verify_user(request: str, db: Session = Depends(get_db)):
     db.refresh(db_user)
 
     return {
+        "name": db_user.name
+        "surname": db8user.surname
+        "role": db_user.role
         "new_token": new_token
     }
