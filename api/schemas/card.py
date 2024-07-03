@@ -6,8 +6,9 @@ class CardBase(BaseModel):
     expiration_date: datetime
     token: str
 
-class CardCreate(CardBase):
-    pass
+class CardCreate(BaseModel):
+    user_id: int
+    expiration_date: datetime
 
 class Card(CardBase):
     card_id: int
