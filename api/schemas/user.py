@@ -3,8 +3,8 @@ from datetime import datetime
 from typing import List
 
 class UserBase(BaseModel):
-    name: str
     first_name: str
+    last_name: str
     email: str
     role: str
     expiration_date: datetime

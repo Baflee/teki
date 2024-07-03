@@ -5,7 +5,7 @@ from db.base import Base
 class Log(Base):
     __tablename__ = "logs"
 
-    id = Column(Integer, primary_key=True, index=True)
+    log_id = Column(Integer, primary_key=True, index=True)
     message = Column(String)
     request = Column(String)
     status = Column(String)

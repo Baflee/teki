@@ -1,10 +1,10 @@
 from pydantic import BaseModel
 
 class LogBase(BaseModel):
+    user_id: int
     message: str
     request: str
     status: str
-    user_id: int
 
 class LogCreate(LogBase):
     pass

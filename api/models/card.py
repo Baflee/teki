@@ -5,9 +5,9 @@ from db.base import Base
 class Card(Base):
     __tablename__ = "cards"
 
-    id = Column(Integer, primary_key=True, index=True)
+    card_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     expiration_date = Column(DateTime)
-    jwt = Column(String)
+    token = Column(String)
 
     user = relationship("User", back_populates="cards")
