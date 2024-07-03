@@ -12,7 +12,7 @@ from models.card import Card as CardModel
 from models.user import User as UserModel
 from schemas.card import CardBase
 from db.session import get_db
-from core.security import decrypt_token, encrypt_token
+from core.security import decrypt_token, encrypt_token, derive_key
 
 SECRET_TOKEN_KEY = os.getenv("SECRET_TOKEN_KEY")
 
@@ -25,8 +25,12 @@ def verify_user(request: str, db: Session = Depends(get_db)):
     if db_card is None:
         raise HTTPException(status_code=404, detail="Card not found")
 
+    #Get user token
+    derived_key = derive_key(SECRET_TOKEN_KEY, db_card.user_id)
+
+
     # Decode the JWT
-    decoded_token = decrypt_token(token, SECRET_TOKEN_KEY)
+    decoded_token = decrypt_token(token, derived_key)
 
     # Extract user information from the token
     token_name = decoded_token.get("name")
@@ -53,7 +57,8 @@ def verify_user(request: str, db: Session = Depends(get_db)):
         "email": db_user.email,
         "random": random.randint(1, 100000),
     }
-    new_token = encrypt_token(new_payload, SECRET_TOKEN_KEY)
+
+    new_token = encrypt_token(new_payload, derived_key)
 
     # Update the card with the new token
     db_card.token = new_token
@@ -67,7 +72,7 @@ def verify_user(request: str, db: Session = Depends(get_db)):
 
     return {
         "name": db_user.name
-        "surname": db8user.surname
+        "surname": db_user.surname
         "role": db_user.role
         "new_token": new_token
     }
