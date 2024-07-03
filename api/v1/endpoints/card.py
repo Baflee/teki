@@ -22,7 +22,7 @@ def create_card(card: CardCreate, db: Session = Depends(get_db)):
 
 @router.put("/{card_id}", response_model=Card)
 def update_card(card_id: int, card: CardCreate, db: Session = Depends(get_db)):
-    db_card = db.query(CardModel).filter(CardModel.id == card_id).first()
+    db_card = db.query(CardModel).filter(CardModel.card_id == card_id).first()
     if db_card is None:
         raise HTTPException(status_code=404, detail="Card not found")
     for key, value in card.dict().items():
@@ -33,7 +33,7 @@ def update_card(card_id: int, card: CardCreate, db: Session = Depends(get_db)):
 
 @router.delete("/{card_id}", response_model=Card)
 def delete_card(card_id: int, db: Session = Depends(get_db)):
-    db_card = db.query(CardModel).filter(CardModel.id == card_id).first()
+    db_card = db.query(CardModel).filter(CardModel.card_id == card_id).first()
     if db_card is None:
         raise HTTPException(status_code=404, detail="Card not found")
     db.delete(db_card)
