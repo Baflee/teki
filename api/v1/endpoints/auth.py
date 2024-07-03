@@ -58,21 +58,29 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
         "card_token": secrets.token_hex(random.randint(10, 30)),
     }
 
-    new_token = encrypt_token(new_payload, derived_key)
+    new_card_token = encrypt_token(new_payload, derived_key)
 
     # Update the card with the new token
-    db_card.token = new_token
+    db_card.token = new_card_token
     db.commit()
     db.refresh(db_card)
 
     # Update the user's token as well
-    db_user.token = new_token
+    db_user.token = new_card_token
     db.commit()
     db.refresh(db_user)
 
+    auth_token_payload = {
+        "user_id": db_user.user_id,
+        "exp": datetime.utcnow() + timedelta(hours=5)  # Token expiration time
+    }
+    new_auth_token = encrypt_token(auth_token_payload, derived_key)
+
     return {
+        "user_id": db_user.user_id,
         "first_name": db_user.first_name,
         "last_name": db_user.last_name,
         "role": db_user.role,
-        "token": new_token,
+        "card_token": new_card_token,
+        "auth_token": new_auth_token
     }
