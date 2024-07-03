@@ -1,19 +1,20 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import LandingScreen from './src/screens/LandingScreen.tsx';
-import ConnectScreen from './src/screens/ConnectScreen.tsx';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import LandingScreen from './src/screens/LandingScreen';
+import ConnectScreen from './src/screens/ConnectScreen';
+import {RootStackParamList} from './src/types/navigation';
 
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator<RootStackParamList>();
 
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Landing">
-        <Stack.Screen name="Landing" component={LandingScreen} />
-        <Stack.Screen name="Connect" component={ConnectScreen} />
-      </Stack.Navigator>
+      <Tab.Navigator screenOptions={{headerShown: false}}>
+        <Tab.Screen name="Landing" component={LandingScreen} />
+        <Tab.Screen name="Connect" component={ConnectScreen} />
+      </Tab.Navigator>
     </NavigationContainer>
   );
 }
