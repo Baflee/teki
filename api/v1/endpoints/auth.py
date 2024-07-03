@@ -5,14 +5,13 @@ from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
 import jwt
 
-router = APIRouter()
-
-# Models and Schemas assumed to be already defined
 from models.card import Card as CardModel
 from models.user import User as UserModel
 from schemas.card import CardBase
 from db.session import get_db
 from core.security import decrypt_token, encrypt_token, derive_key
+
+router = APIRouter()
 
 SECRET_TOKEN_KEY = os.getenv("SECRET_TOKEN_KEY")
 
@@ -52,8 +51,8 @@ def verify_user(request: str, db: Session = Depends(get_db)):
     # Create a new token with the updated expiration date and a random number
     new_payload = {
         "user_id": db_user.user_id,
-        "name": db_user.name,
-        "surname": db_user.surname,
+        "first_name": db_user.first_name,
+        "last_name": db_user.last_name,
         "email": db_user.email,
         "random": random.randint(1, 100000),
     }
@@ -71,8 +70,8 @@ def verify_user(request: str, db: Session = Depends(get_db)):
     db.refresh(db_user)
 
     return {
-        "name": db_user.name
-        "surname": db_user.surname
-        "role": db_user.role
-        "new_token": new_token
+        "first_name": db_user.first_name,
+        "last_name": db_user.last_name,
+        "role": db_user.role,
+        "new_token": new_token,
     }

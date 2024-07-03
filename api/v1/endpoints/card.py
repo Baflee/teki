@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+
 from schemas.card import Card, CardCreate
 from models.card import Card as CardModel
 from db.session import get_db
@@ -33,8 +34,8 @@ def create_card(card: CardCreate, db: Session = Depends(get_db)):
     # Create the token payload
     new_payload = {
         "user_id": db_user.id,
-        "name": db_user.name,
-        "surname": db_user.surname,
+        "first_name": db_user.first_name,
+        "last_name": db_user.last_name,
         "email": db_user.email,
         "card_token": secrets.token_hex(random.randint(10, 30)),
     }
