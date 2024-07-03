@@ -6,7 +6,7 @@ class Card(Base):
     __tablename__ = "cards"
 
     card_id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.user_id"))
     expiration_date = Column(DateTime)
     token = Column(String)
 

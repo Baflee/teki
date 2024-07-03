@@ -10,7 +10,7 @@ class CardCreate(CardBase):
     pass
 
 class Card(CardBase):
-    id: int
+    card_id: int
 
     class Config:
         orm_mode = True

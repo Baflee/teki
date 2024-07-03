@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from db.base import Base
 
@@ -9,6 +9,7 @@ class Log(Base):
     message = Column(String)
     request = Column(String)
     status = Column(String)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    creation_date = Column(DateTime)
+    user_id = Column(Integer, ForeignKey("users.user_id"))
 
     user = relationship("User", back_populates="logs")
