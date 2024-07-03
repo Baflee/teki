@@ -3,17 +3,17 @@ from sqlalchemy.orm import Session
 from typing import List
 import secrets
 import random
-import os
 
 from schemas.card import Card, CardCreate
 from models.card import Card as CardModel
 from models.user import User as UserModel
 from db.session import get_db
 from core.security import encrypt_token, derive_key
+from core.config import settings
 
 router = APIRouter()
 
-SECRET_TOKEN_KEY = os.getenv("SECRET_TOKEN_KEY")
+SECRET_TOKEN_KEY = settings.secret_token_key
 
 @router.get("/", response_model=List[Card])
 def read_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):

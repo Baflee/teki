@@ -1,23 +1,23 @@
-import os
 import secrets
 import random
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-import jwt
 
 from models.card import Card as CardModel
 from models.user import User as UserModel
 from schemas.card import CardBase
+from schemas.auth import AuthBase, VerifyUserRequest
 from db.session import get_db
 from core.security import decrypt_token, encrypt_token, derive_key
+from core.config import settings
 
 router = APIRouter()
 
-SECRET_TOKEN_KEY = os.getenv("SECRET_TOKEN_KEY")
+SECRET_TOKEN_KEY = settings.secret_token_key
 
-@router.post("/verify-user", response_model=CardBase)
-def verify_user(request: str, db: Session = Depends(get_db)):
+@router.post("/verify-user", response_model=AuthBase)
+def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
     token = request.token
 
     # Check if the token exists in the cards table
@@ -33,7 +33,7 @@ def verify_user(request: str, db: Session = Depends(get_db)):
     decoded_token = decrypt_token(token, derived_key)
 
     # Extract user information from the token
-    tooken_first_name = decoded_token.get("first_name")
+    token_first_name = decoded_token.get("first_name")
     token_last_name = decoded_token.get("last_name")
     token_email = decoded_token.get("email")
 
@@ -74,5 +74,5 @@ def verify_user(request: str, db: Session = Depends(get_db)):
         "first_name": db_user.first_name,
         "last_name": db_user.last_name,
         "role": db_user.role,
-        "new_token": new_token,
+        "token": new_token,
     }

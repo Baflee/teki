@@ -14,10 +14,12 @@ def decrypt_token(token: str, secret_key: str) -> dict:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 def derive_key(secret_key, user_id, iterations=100000):
-    if secret_key is None or user_id is None:
-        raise ValueError("secret_key and user_id must not be None")
+    if secret_key is None:
+        raise ValueError("secret_key must not be None")
+    if user_id is None:
+        raise ValueError("user_id must not be None")
     if not isinstance(secret_key, str):
         raise TypeError("secret_key must be a string")
-    
+
     salt = str(user_id).encode()
     return hashlib.pbkdf2_hmac('sha256', secret_key.encode(), salt, iterations)
