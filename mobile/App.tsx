@@ -1,57 +1,22 @@
-import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import NfcManager from 'react-native-nfc-manager';
+import 'react-native-gesture-handler';
+import * as React from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import LandingScreen from './src/screens/LandingScreen';
+import ConnectScreen from './src/screens/ConnectScreen';
+import {RootStackParamList} from './src/types/navigation';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Tab = createBottomTabNavigator<RootStackParamList>();
 
 function App() {
-  const [hasNfc, setHasNfc] = React.useState(false);
-  React.useEffect(() => {
-    async function checkNfc() {
-      const supported = await NfcManager.isSupported();
-      if (supported) {
-        await NfcManager.start();
-      }
-      setHasNfc(supported);
-    }
-    checkNfc();
-  });
-
-  if (hasNfc === null) {
-    return (
-      <View style={styles.wrapper}>
-        <Text>Your device doesn't support NFC</Text>
-      </View>
-    );
-  } else if (!hasNfc) {
-    return (
-      <View style={styles.wrapper}>
-        <Text>Hello</Text>
-      </View>
-    );
-  }
+  return (
+    <NavigationContainer>
+      <Tab.Navigator screenOptions={{headerShown: false}}>
+        <Tab.Screen name="Landing" component={LandingScreen} />
+        <Tab.Screen name="Connect" component={ConnectScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  );
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
 
 export default App;
