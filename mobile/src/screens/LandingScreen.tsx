@@ -11,6 +11,7 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setIsScanning(false);
+      setTagData(null);
     });
 
     return unsubscribe;
@@ -71,15 +72,16 @@ const LandingScreen: React.FC<Props> = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     backgroundColor: '#252C40',
   },
   title: {
+    marginLeft: 20,
     fontSize: 24,
-
+    fontFamily: 'Inter-Bold',
     color: '#fff',
   },
   underText: {
+    marginLeft: 20,
     fontSize: 13,
     marginBottom: 20,
     color: '#858CA7',
@@ -87,13 +89,15 @@ const styles = StyleSheet.create({
   scanningTitle: {
     fontSize: 24,
 
+    marginLeft: 20,
     color: '#D5A419',
   },
   text: {
     marginTop: 20,
   },
   imageStyl: {
-    height: 80,
+    width: 150,
+    height: 150,
   },
 });
 
