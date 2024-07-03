@@ -6,3 +6,4 @@ passlib[bcrypt]
 python-dotenv
 pydantic_settings
 mysqlclient
+jwt
