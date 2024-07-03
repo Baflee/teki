@@ -1,13 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
+import secrets
+import random
+import os
 
 from schemas.card import Card, CardCreate
 from models.card import Card as CardModel
+from models.user import User as UserModel
 from db.session import get_db
 from core.security import encrypt_token, derive_key
 
 router = APIRouter()
+
+SECRET_TOKEN_KEY = os.getenv("SECRET_TOKEN_KEY")
 
 @router.get("/", response_model=List[Card])
 def read_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
@@ -22,30 +28,28 @@ def create_card(card: CardCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="User already has a card")
 
     db_card = CardModel(**card.dict())
-    db.add(db_card)
-    db.commit()
-    db.refresh(db_card)
 
     # Fetch the user related to the card
-    db_user = db.query(UserModel).filter(UserModel.id == db_card.user_id).first()
+    db_user = db.query(UserModel).filter(UserModel.user_id == db_card.user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
     # Create the token payload
     new_payload = {
-        "user_id": db_user.id,
+        "user_id": db_user.user_id,
         "first_name": db_user.first_name,
         "last_name": db_user.last_name,
         "email": db_user.email,
         "card_token": secrets.token_hex(random.randint(10, 30)),
     }
     #Get the derived key
-    derived_key = derive_key(SECRET_TOKEN_KEY, db_user.id)
+    derived_key = derive_key(SECRET_TOKEN_KEY, db_user.user_id)
 
     new_token = encrypt_token(new_payload, derived_key)
 
     # Update the card with the generated token
     db_card.token = new_token
+    db.add(db_card)
     db.commit()
     db.refresh(db_card)
     return db_card

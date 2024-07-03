@@ -1,4 +1,5 @@
 import os
+import secrets
 import random
 from datetime import datetime, timedelta
 from fastapi import HTTPException, Depends, APIRouter
@@ -32,11 +33,11 @@ def verify_user(request: str, db: Session = Depends(get_db)):
     decoded_token = decrypt_token(token, derived_key)
 
     # Extract user information from the token
-    token_name = decoded_token.get("name")
-    token_surname = decoded_token.get("surname")
+    tooken_first_name = decoded_token.get("first_name")
+    token_last_name = decoded_token.get("last_name")
     token_email = decoded_token.get("email")
 
-    if token_name is None or token_surname is None or token_email is None:
+    if token_first_name is None or token_last_name is None or token_email is None:
         raise HTTPException(status_code=400, detail="Invalid token payload")
 
     # Retrieve the user from the database using the user_id from the card
@@ -45,7 +46,7 @@ def verify_user(request: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
 
     # Verify that the user information matches
-    if db_user.name != token_name or db_user.surname != token_surname or db_user.email != token_email:
+    if db_user.first_name != token_first_name or db_user.last_name != token_last_name or db_user.email != token_email:
         raise HTTPException(status_code=403, detail="User information does not match")
 
     # Create a new token with the updated expiration date and a random number
@@ -54,7 +55,7 @@ def verify_user(request: str, db: Session = Depends(get_db)):
         "first_name": db_user.first_name,
         "last_name": db_user.last_name,
         "email": db_user.email,
-        "random": random.randint(1, 100000),
+        "card_token": secrets.token_hex(random.randint(10, 30)),
     }
 
     new_token = encrypt_token(new_payload, derived_key)
