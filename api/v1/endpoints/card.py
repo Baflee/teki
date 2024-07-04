@@ -6,8 +6,14 @@ from dependencies import get_current_active_admin
 from models.user import User as UserModel
 from models.card import Card as CardModel
 from db.session import get_db
+from core.security import encrypt_token, derive_key
+from core.config import settings
+import secrets
+import random
 
 router = APIRouter()
+
+SECRET_TOKEN_KEY = settings.secret_token_key
 
 @router.get("/", response_model=List[Card])
 def read_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
@@ -15,8 +21,29 @@ def read_cards(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     return cards
 
 @router.post("/", response_model=Card)
-def create_card(card: CardCreate, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_active_admin)):
+def create_card(card: CardCreate, db: Session = Depends(get_db)):
     db_card = CardModel(**card.dict())
+
+    # Fetch the user related to the card
+    db_user = db.query(UserModel).filter(UserModel.user_id == db_card.user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # Create the token payload
+    new_payload = {
+        "user_id": db_user.user_id,
+        "first_name": db_user.first_name,
+        "last_name": db_user.last_name,
+        "email": db_user.email,
+        "card_token": secrets.token_hex(random.randint(10, 30)),
+    }
+    #Get the derived key
+    derived_key = derive_key(SECRET_TOKEN_KEY, db_user.user_id)
+
+    new_token = encrypt_token(new_payload, derived_key)
+
+    # Update the card with the generated token
+    db_card.token = new_token
     db.add(db_card)
     db.commit()
     db.refresh(db_card)

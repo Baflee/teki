@@ -15,7 +15,7 @@ def read_users(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), cu
     return users
 
 @router.post("/", response_model=User)
-def create_user(user: UserCreate, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_active_admin)):
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db_user = UserModel(**user.dict())
     db.add(db_user)
     db.commit()

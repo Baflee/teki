@@ -35,9 +35,9 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
     decoded_token = decrypt_token(token, derived_key)
 
     # Extract user information from the token
-    token_first_name = decoded_token.get("first_name")
-    token_last_name = decoded_token.get("last_name")
-    token_email = decoded_token.get("email")
+    token_first_name = decoded_token["first_name"]
+    token_last_name = decoded_token["last_name"]
+    token_email = decoded_token["email"]
 
     if token_first_name is None or token_last_name is None or token_email is None:
         raise HTTPException(status_code=400, detail="Invalid token payload")
@@ -94,6 +94,7 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
         "last_name": db_user.last_name,
         "role": db_user.role,
         #"card_token": new_card_token,
+        "card_token": token,
         "auth_token": new_auth_token
     }
 @router.websocket("/ws")

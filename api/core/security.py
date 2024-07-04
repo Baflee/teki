@@ -11,7 +11,7 @@ def decrypt_token(token: str, secret_key: str) -> dict:
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token 4")
 
 def derive_key(secret_key, user_id, iterations=100000):
     if secret_key is None:

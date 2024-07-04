@@ -5,9 +5,11 @@ from core.security import decrypt_token, derive_key
 from core.config import settings
 from models.user import User as UserModel
 from db.session import get_db
+from core.security import decrypt_token, derive_key
+from core.config import settings
 import jwt
 
-SECRET_TOKEN_KEY = "ruuiheurghuhUGHEUIGZEGZGEZ654954GZGYEZFBYZEGFygfzeyfgzfeufhzufhzGFZYEGFYEF5"
+SECRET_TOKEN_KEY = settings.secret_token_key
 security = HTTPBearer()
 
 def get_current_user(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
@@ -17,7 +19,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Security(securi
         derived_key = derive_key(SECRET_TOKEN_KEY, user_id)  # Assume you have a way to get the user_id from the token
         decoded_token = decrypt_token(token, derived_key)
     except Exception:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token 1")
 
     # Retrieve the user from the database
     user_id = decoded_token.get("user_id")
@@ -37,9 +39,9 @@ def get_current_active_admin(
         decoded_token = jwt.decode(token, options={"verify_signature": False})
         user_id = decoded_token.get("user_id")
         if user_id is None:
-            raise HTTPException(status_code=401, detail="Invalid token")
+            raise HTTPException(status_code=401, detail="Invalid token 2")
 
-        derived_key = derive_key("ruuiheurghuhUGHEUIGZEGZGEZ654954GZGYEZFBYZEGFygfzeyfgzfeufhzufhzGFZYEGFYEF5", user_id)  
+        derived_key = derive_key(SECRET_TOKEN_KEY, user_id)  
         decoded_token = decrypt_token(token, derived_key)
 
         db_user = db.query(UserModel).filter(UserModel.user_id == user_id).first()
@@ -50,4 +52,4 @@ def get_current_active_admin(
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(status_code=401, detail="Invalid token 3")
