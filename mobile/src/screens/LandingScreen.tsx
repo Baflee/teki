@@ -5,6 +5,7 @@ import {jwtDecode} from 'jwt-decode';
 import {LandingScreenNavigationProp} from '../types/navigation.ts';
 import {ScanMode, ScanWithNFCButton} from '../components/ScanWithNFCButton.tsx';
 import {ScanStatusHeader} from '../components/ScanStatusHeader.tsx';
+import axios from 'axios';
 
 type Props = {
   navigation: LandingScreenNavigationProp;
@@ -31,6 +32,20 @@ const LandingScreen: React.FC<Props> = ({
 }) => {
   const [animationOpacity] = useState(new Animated.Value(1));
 
+  const verifyUser = async (text: string) => {
+    console.log('api called');
+    try {
+      const response = await axios.post(
+        'http://192.168.173.121:8000/verify-user',
+        {
+          token: text,
+        },
+      );
+      console.log('Verification Response:', response.data);
+    } catch (error) {
+      console.error('Verification Error:', error);
+    }
+  };
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       cancelReadNfc();
@@ -74,6 +89,7 @@ const LandingScreen: React.FC<Props> = ({
           setIsScanned(true);
           const decodedtext: any = jwtDecode(text);
           setDecoded(decodedtext);
+          verifyUser(text);
         } else {
           cancelReadNfc();
           setIsError(true);

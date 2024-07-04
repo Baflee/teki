@@ -8,23 +8,18 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    // Create WebSocket socket
     const newSocket = new WebSocket("ws://localhost:8000/ws");
 
-    // Set up event listeners
     newSocket.onopen = () => {
       console.log("Connected to WebSocket server");
-      setSocket(newSocket); // Store socket in state
+      setSocket(newSocket);
     };
 
     newSocket.onmessage = (event) => {
       console.log("Message from server:", event.data);
-      // Handle server messages here if needed
     };
     newSocket.onmessage = (event) => {
       console.log("Message from server:", event.data);
-      // Handle messages received from the server here
-      // Example: You could receive a message to navigate to dashboard
       const message = JSON.parse(event.data);
       if (message.type === "navigate_to_dashboard") {
         navigate("/dashboard");
