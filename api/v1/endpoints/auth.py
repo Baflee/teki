@@ -63,14 +63,15 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
     new_card_token = encrypt_token(new_payload, derived_key)
 
     # Update the card with the new token
-    db_card.token = new_card_token
-    db.commit()
-    db.refresh(db_card)
+    # db_card.token = new_card_token
+    # db.commit()
+    # db.refresh(db_card)
 
-    # Update the user's token as well
-    db_user.token = new_card_token
-    db.commit()
-    db.refresh(db_user)
+    # # Update the user's token as well
+    # db_user.token = new_card_token
+    # db.commit()
+    # db.refresh(db_user)
+    
 
     auth_token_payload = {
         "user_id": db_user.user_id,
