@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, Image, Animated} from 'react-native';
+import {View, StyleSheet, Image, Animated} from 'react-native';
 import NfcManager, {NfcTech, Ndef} from 'react-native-nfc-manager';
 import {jwtDecode} from 'jwt-decode';
 import {LandingScreenNavigationProp} from '../types/navigation.ts';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import {ScanMode, ScanWithNFCButton} from '../components/ScanWithNFCButton.tsx';
+import {ScanStatusHeader} from '../components/ScanStatusHeader.tsx';
 
 type Props = {
   navigation: LandingScreenNavigationProp;
@@ -28,8 +29,6 @@ const LandingScreen: React.FC<Props> = ({
   setIsScanned,
   setDecoded,
 }) => {
-  const [tagData, setTagData] = useState<string | null>(null);
-
   const [animationOpacity] = useState(new Animated.Value(1));
 
   useEffect(() => {
@@ -52,9 +51,9 @@ const LandingScreen: React.FC<Props> = ({
   const cancelReadNfc = async () => {
     setIsScanning(false);
     setIsScanned(false);
-    setTagData(null);
     setDecoded(null);
   };
+
   const cancelError = async () => {
     setIsError(false);
   };
@@ -71,7 +70,6 @@ const LandingScreen: React.FC<Props> = ({
         if (ndefRecord && ndefRecord.payload) {
           const payload = new Uint8Array(ndefRecord.payload);
           const text = Ndef.text.decodePayload(payload);
-          setTagData(text);
           setIsError(false);
           setIsScanned(true);
           const decodedtext: any = jwtDecode(text);
@@ -80,19 +78,16 @@ const LandingScreen: React.FC<Props> = ({
           cancelReadNfc();
           setIsError(true);
           readNfcTag();
-          setTagData('No NDEF message payload found');
         }
       } else {
         cancelReadNfc();
         setIsError(true);
         readNfcTag();
-        setTagData('No NDEF message found');
       }
     } catch (ex) {
       cancelReadNfc();
       setIsError(true);
       readNfcTag();
-      setTagData('Error reading NFC tag');
     } finally {
       NfcManager.cancelTechnologyRequest();
     }
@@ -128,92 +123,38 @@ const LandingScreen: React.FC<Props> = ({
         style={styles.imageStyle}
       />
       {isScanning ? (
-        isScanned ? (
-          <View>
-            {decoded && (
-              <View>
-                <Text style={styles.title}>{decoded.name}</Text>
-                <Text
-                  style={[
-                    styles.underText,
-                    isScanned && decoded ? styles.scannedUnderText : null,
-                  ]}>
-                  Thanks ! Your card is valid
-                </Text>
-              </View>
-            )}
-          </View>
-        ) : !isError ? (
-          <View>
-            <Text style={styles.scanningTitle}>Scanning ...</Text>
-            <Text style={styles.underText}>
-              Keep your card close to your phone...
-            </Text>
-          </View>
-        ) : null
+        isScanned && decoded ? (
+          <ScanStatusHeader mode={ScanMode.SUCCESS} cardHolder={decoded.name} />
+        ) : (
+          !isError && <ScanStatusHeader mode={ScanMode.SCANNING} />
+        )
       ) : !isError ? (
-        <View>
-          <Text style={styles.title}>Scan your card</Text>
-          <Text style={styles.underText}>
-            Authenticate with your physical card
-          </Text>
-        </View>
+        <ScanStatusHeader mode={ScanMode.OFF} />
       ) : null}
-      {isError ? (
-        <View>
-          <Text style={styles.title}>Unknown card</Text>
-          <Text
-            style={[
-              styles.underText,
-              isError ? styles.scannedUnderText : null,
-            ]}>
-            Please try scanning again
-          </Text>
-        </View>
-      ) : null}
+      {isError ? <ScanStatusHeader mode={ScanMode.ERROR} /> : null}
 
       <View style={styles.centeredButtonContainer}>
         {isScanning ? (
-          isScanned ? (
-            <View>
-              {decoded && (
-                <Image
-                  source={require('../assets/tick.png')}
-                  style={styles.scanbuttonImage}
-                />
-              )}
-            </View>
+          isScanned && decoded ? (
+            <ScanWithNFCButton mode={ScanMode.SUCCESS} />
           ) : !isError ? (
             <Animated.View style={{opacity: animationOpacity}}>
-              <TouchableOpacity onPress={cancelReadNfc}>
-                <Image
-                  source={require('../assets/scanning.png')}
-                  style={styles.scanningbuttonImage}
-                />
-              </TouchableOpacity>
+              <ScanWithNFCButton
+                mode={ScanMode.SCANNING}
+                onClick={() => cancelReadNfc()}
+              />
             </Animated.View>
           ) : (
-            <TouchableOpacity onPress={cancelError}>
-              <Image
-                source={require('../assets/x.png')}
-                style={styles.scanbuttonImage}
-              />
-            </TouchableOpacity>
+            <ScanWithNFCButton
+              mode={ScanMode.ERROR}
+              onClick={() => cancelError()}
+            />
           )
-        ) : !isError ? (
-          <TouchableOpacity onPress={readNfcTag}>
-            <Image
-              source={require('../assets/scan.png')}
-              style={styles.scanbuttonImage}
-            />
-          </TouchableOpacity>
         ) : (
-          <TouchableOpacity onPress={cancelError}>
-            <Image
-              source={require('../assets/x.png')}
-              style={styles.scanbuttonImage}
-            />
-          </TouchableOpacity>
+          <ScanWithNFCButton
+            mode={!isError ? ScanMode.OFF : ScanMode.ERROR}
+            onClick={() => (!isError ? readNfcTag() : cancelError())}
+          />
         )}
       </View>
     </View>
@@ -267,16 +208,6 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: 150,
     height: 150,
-  },
-  scanbuttonImage: {
-    marginBottom: 40,
-    width: 150,
-    height: 150,
-  },
-  scanningbuttonImage: {
-    marginBottom: 50,
-    width: 250,
-    height: 250,
   },
 });
 
