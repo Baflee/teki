@@ -43,12 +43,12 @@ export const ScanStatusHeader = ({mode, cardHolder}: ScanStatusHeaderProps) => {
         {headerTitle()}
       </Text>
       <Text
-        style={
-          (styles.underText,
+        style={[
+          styles.underText,
           [ScanMode.SUCCESS, ScanMode.ERROR].includes(mode)
             ? styles.scannedUnderText
-            : null)
-        }>
+            : null,
+        ]}>
         {headerSubtitle()}
       </Text>
     </View>
