@@ -55,7 +55,7 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
         "first_name": db_user.first_name,
         "last_name": db_user.last_name,
         "email": db_user.email,
-        "card_token": secrets.token_hex(random.randint(10, 30)),
+        "card_token": secrets.token_hex(random.randint(1, 4)),
     }
 
     new_card_token = encrypt_token(new_payload, derived_key)
@@ -81,6 +81,6 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
         "first_name": db_user.first_name,
         "last_name": db_user.last_name,
         "role": db_user.role,
-        "card_token": new_card_token,
+        #"card_token": new_card_token,
         "auth_token": new_auth_token
     }
