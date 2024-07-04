@@ -3,9 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [socket, setSocket] = useState(null);
+  const [isWaiting, setIsWaiting] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
+    setIsWaiting(true);
     e.preventDefault();
 
     const newSocket = new WebSocket("ws://localhost:8000/ws");
@@ -47,6 +49,7 @@ const Login = () => {
           >
             Login with Taki Mobile App
           </button>
+          {isWaiting && <div></div>}
         </div>
       </div>
     </div>

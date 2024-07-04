@@ -11,15 +11,17 @@ from schemas.auth import AuthBase, VerifyUserRequest
 from db.session import get_db
 from core.security import decrypt_token, encrypt_token, derive_key
 from core.config import settings
+from websocket_manager import websocket_manager
 
+import json
 router = APIRouter()
 
 SECRET_TOKEN_KEY = settings.secret_token_key
 
-active_connections: dict = {}
+
 
 @router.post("/verify-user", response_model=AuthBase)
-def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
+async def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
     token = request.token
 
     # Check if the token exists in the cards table
@@ -79,15 +81,11 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
     }
     new_auth_token = encrypt_token(auth_token_payload, derived_key)
 
-    for connection_id, websocket in active_connections.items():
-        try:
-             websocket.send_json({
-                "type": "navigate_to_dashboard",
-                "message": "User verified. Redirecting to dashboard..."
-            })
-        except WebSocketDisconnect:
-            # Handle disconnect if necessary
-            pass
+    message_to_send = {
+        "type": "navigate_to_dashboard",
+        "message": "Verification successful. Navigating to dashboard."
+    }
+    await websocket_manager.send_message(json.dumps(message_to_send))
 
     return {
         "user_id": db_user.user_id,
@@ -98,13 +96,3 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
         "card_token": token,
         "auth_token": new_auth_token
     }
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    connection_id = secrets.token_urlsafe(32)
-    active_connections[connection_id] = websocket
-    try:
-        while True:
-            await websocket.receive_text()
-    except WebSocketDisconnect:
-        del active_connections[connection_id]

@@ -32,18 +32,24 @@ const LandingScreen: React.FC<Props> = ({
 }) => {
   const [animationOpacity] = useState(new Animated.Value(1));
 
-  const verifyUser = async (text: string) => {
-    console.log('api called');
+  const verifyUser = async (token: string) => {
     try {
       const response = await axios.post(
-        'http://192.168.173.121:8000/verify-user',
+        'http://192.168.173.121:8000/v1/auth/verify-user',
         {
-          token: text,
+          token: token,
         },
       );
-      console.log('Verification Response:', response.data);
-    } catch (error) {
-      console.error('Verification Error:', error);
+    } catch (error: any) {
+      if (error.response) {
+        console.error('Server Error:', error.response.data);
+        console.error('Status Code:', error.response.status);
+      } else if (error.request) {
+        console.error('No Response:', error.request);
+      } else {
+        console.error('Request Error:', error.message);
+      }
+      console.error('Axios Error:', error);
     }
   };
   useEffect(() => {
@@ -80,8 +86,10 @@ const LandingScreen: React.FC<Props> = ({
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
+
       if (tag && tag.ndefMessage) {
         const ndefRecord = tag.ndefMessage[0];
+
         if (ndefRecord && ndefRecord.payload) {
           const payload = new Uint8Array(ndefRecord.payload);
           const text = Ndef.text.decodePayload(payload);
@@ -89,7 +97,7 @@ const LandingScreen: React.FC<Props> = ({
           setIsScanned(true);
           const decodedtext: any = jwtDecode(text);
           setDecoded(decodedtext);
-          verifyUser(text);
+          verifyUser(text.trim());
         } else {
           cancelReadNfc();
           setIsError(true);
@@ -140,7 +148,10 @@ const LandingScreen: React.FC<Props> = ({
       />
       {isScanning ? (
         isScanned && decoded ? (
-          <ScanStatusHeader mode={ScanMode.SUCCESS} cardHolder={decoded.name} />
+          <ScanStatusHeader
+            mode={ScanMode.SUCCESS}
+            cardHolder={decoded.first_name + ' ' + decoded.last_name}
+          />
         ) : (
           !isError && <ScanStatusHeader mode={ScanMode.SCANNING} />
         )
