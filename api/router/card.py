@@ -3,4 +3,4 @@ from v1.endpoints import card
 
 router = APIRouter()
 
-router.include_router(card.router, prefix="/card", tags=["card"])
+router.include_router(card.router, prefix="", tags=["card"])
