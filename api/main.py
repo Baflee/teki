@@ -1,7 +1,11 @@
 from fastapi import FastAPI
+from fastapi.security import HTTPBearer
+
 from router import user, card, log, auth
 
 app = FastAPI()
+
+security_scheme = HTTPBearer()
 
 app.include_router(user.router, prefix="/v1/user", tags=["user"])
 app.include_router(card.router, prefix="/v1/card", tags=["card"])
