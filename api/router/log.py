@@ -3,4 +3,4 @@ from v1.endpoints import log
 
 router = APIRouter()
 
-router.include_router(log.router, prefix="/log", tags=["log"])
+router.include_router(log.router, prefix="", tags=["log"])
