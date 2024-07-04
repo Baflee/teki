@@ -1,11 +1,12 @@
-from models.user import User as UserModel
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from schemas.log import Log, LogCreate
 from models.log import Log as LogModel
 from db.session import get_db
+from models.user import User as UserModel
 from dependencies import get_current_active_admin
+
 
 router = APIRouter()
 
@@ -20,7 +21,7 @@ def create_log(log: LogCreate, db: Session = Depends(get_db), current_user: User
     db.add(db_log)
     db.commit()
     db.refresh(db_log)
-    db_log
+    return db_log
 
 @router.put("/{log_id}", response_model=Log)
 def update_log(log_id: int, log: LogCreate, db: Session = Depends(get_db), current_user: UserModel = Depends(get_current_active_admin)):

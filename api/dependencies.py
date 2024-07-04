@@ -45,7 +45,7 @@ def get_current_active_admin(
         decoded_token = decrypt_token(token, derived_key)
 
         db_user = db.query(UserModel).filter(UserModel.user_id == user_id).first()
-        if db_user is None or db_user.role != "Admin":
+        if db_user is None or db_user.role.lower() != "admin":
             raise HTTPException(status_code=401, detail="Unauthorized")
 
         return db_user

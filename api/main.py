@@ -2,12 +2,15 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.security import HTTPBearer
 from websocket_manager import websocket_manager
 
+#from middleware import LogMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from middleware import LogMiddleware
 
 from router import user, card, log, auth
 
 app = FastAPI()
 
-
+app.add_middleware(LogMiddleware)
 
 
 security_scheme = HTTPBearer()
