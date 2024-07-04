@@ -1,7 +1,7 @@
 import secrets
 import random
 from datetime import datetime, timedelta
-from fastapi import HTTPException, Depends, APIRouter
+from fastapi import HTTPException, Depends, APIRouter, WebSocket, WebSocketDisconnect
 from sqlalchemy.orm import Session
 
 from models.card import Card as CardModel
@@ -15,6 +15,8 @@ from core.config import settings
 router = APIRouter()
 
 SECRET_TOKEN_KEY = settings.secret_token_key
+
+active_connections: dict = {}
 
 @router.post("/verify-user", response_model=AuthBase)
 def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
@@ -76,6 +78,16 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
     }
     new_auth_token = encrypt_token(auth_token_payload, derived_key)
 
+    for connection_id, websocket in active_connections.items():
+        try:
+             websocket.send_json({
+                "type": "navigate_to_dashboard",
+                "message": "User verified. Redirecting to dashboard..."
+            })
+        except WebSocketDisconnect:
+            # Handle disconnect if necessary
+            pass
+
     return {
         "user_id": db_user.user_id,
         "first_name": db_user.first_name,
@@ -84,3 +96,13 @@ def verify_user(request: VerifyUserRequest, db: Session = Depends(get_db)):
         "card_token": new_card_token,
         "auth_token": new_auth_token
     }
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    connection_id = secrets.token_urlsafe(32)
+    active_connections[connection_id] = websocket
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        del active_connections[connection_id]
